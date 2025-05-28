@@ -1,147 +1,95 @@
-from kivy.app import App
-from kivy.lang import Builder
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.button import Button
-from kivy.properties import ObjectProperty
-import math
+# front end
 
-KV = '''
-<CalcWidget>:
-    orientation: 'horizontal'
-    entry: entry
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint_x: 0.2
-        Button:
-            text: 'Padrão'
-            on_release: root.show_mode('padrao')
-        Button:
-            text: 'Científica'
-            on_release: root.show_mode('cientifica')
-        Button:
-            text: 'Programação'
-            on_release: root.show_mode('programacao')
-        Button:
-            text: 'Conversor'
-            on_release: root.show_mode('conversor')
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 10
-        spacing: 10
-        TextInput:
-            id: entry
-            font_size: 32
-            size_hint_y: 0.1
-            multiline: False
-        BoxLayout:
-            id: main_area
-            orientation: 'vertical'
-            size_hint_y: 0.9
-'''
+from tkinter import *
+from tkinter import ttk
+
+#cores
+preto = "#212121"
+branco = "#ffffff"
+azul = "#3a576b"
+cinza = "#dee0e0"
+laranja = "#e39734"
+
+#criando janela
+janela = Tk()
+janela.title("Calculadora")
+janela.geometry("235x310")
+janela.config(bg = preto)
+
+#frames
+frame_tela = Frame(janela, width = 235, height = 50, bg = azul)
+frame_tela.grid(row = 0, column = 0)
+
+frame_corpo = Frame(janela, width = 235, height = 268)
+frame_corpo.grid(row = 1, column = 0)
+
+#label
+app_label = Label(frame_tela, text = '123456789', width=24, height=3, padx=7, relief=FLAT, anchor="e", justify=RIGHT, font=('Ivy 13'), bg=azul, fg = branco)
+app_label.place(x =0, y = 0)
+
+#botoes
+botao_clear = Button(frame_corpo, text = "C", width = 11, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_clear.place(x = 0, y = 0)
+
+botao_porcentagem = Button(frame_corpo, text = "%", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_porcentagem.place(x = 118, y = 0)
+
+botao_divisao = Button(frame_corpo, text = "/", width = 5, height = 2, bg = laranja, fg = branco, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_divisao.place(x = 177, y = 0)
 
 
-class CalcWidget(BoxLayout):
-    entry = ObjectProperty(None)
+botao_7 = Button(frame_corpo, text = "7", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_7.place(x = 0, y = 52)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.modes = {
-            'padrao': ['+', '-', '*', '/', '='],
-            'cientifica': ['sin', 'cos', 'tan', 'log', 'ln', 'sqrt', 'exp'],
-            'programacao': ['bin', 'hex', 'oct'],
-            'conversor': ['C->F', 'F->C', 'm->cm', 'cm->m', 'kg->g', 'g->kg', 'L->mL', 'mL->L']
-        }
-        self.show_mode('padrao')
+botao_8 = Button(frame_corpo, text = "8", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_8.place(x = 59, y = 52)
 
-    def show_mode(self, mode):
-        area = self.ids.main_area
-        area.clear_widgets()
-        # Teclado numérico responsivo com tecla ⌫ para apagar último dígito
-        num_pad = [
-            ['7', '8', '9'],
-            ['4', '5', '6'],
-            ['1', '2', '3'],
-            ['0', '.', '⌫', 'C']
-        ]
-        for row in num_pad:
-            row_layout = BoxLayout(
-                orientation='horizontal', spacing=5, size_hint_y=0.2)
-            for key in row:
-                btn = Button(text=key, size_hint=(1, 1))
-                btn.bind(on_release=lambda inst, k=key: self.on_numeric(k))
-                row_layout.add_widget(btn)
-            area.add_widget(row_layout)
+botao_9 = Button(frame_corpo, text = "9", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_9.place(x = 118, y = 52)
 
-        # grid de funções específicas do modo
-        buttons = self.modes.get(mode, [])
-        cols = 4 if mode in ['padrao', 'conversor'] else 3
-        func_grid = GridLayout(cols=cols, spacing=5, size_hint_y=0.6)
-        for b in buttons:
-            btn = Button(text=b)
-            btn.bind(on_release=lambda inst, txt=b,
-                     m=mode: self.on_button(m, txt))
-            func_grid.add_widget(btn)
-        area.add_widget(func_grid)
-
-    def on_numeric(self, key):
-        if key == 'C':
-            self.entry.text = ''
-        elif key == '⌫':
-            self.entry.text = self.entry.text[:-1]
-        else:
-            self.entry.text += key
-
-    def on_button(self, mode, text):
-        e = self.entry
-        if mode == 'padrao':
-            if text == '=':
-                try:
-                    e.text = str(eval(e.text))
-                except:
-                    e.text = 'Erro'
-            else:
-                e.text += text
-        elif mode == 'cientifica':
-            try:
-                x = float(e.text)
-                funcs = {
-                    'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
-                    'log': math.log10, 'ln': math.log, 'sqrt': math.sqrt,
-                    'exp': math.exp
-                }
-                e.text = str(funcs[text](x))
-            except:
-                e.text = 'Erro'
-        elif mode == 'programacao':
-            try:
-                v = int(e.text)
-                conv = {'bin': bin, 'hex': hex, 'oct': oct}[text]
-                e.text = conv(v)
-            except:
-                e.text = 'Erro'
-        elif mode == 'conversor':
-            try:
-                v = float(e.text)
-                convs = {
-                    'C->F': v*9/5+32, 'F->C': (v-32)*5/9,
-                    'm->cm': v*100, 'cm->m': v/100,
-                    'kg->g': v*1000, 'g->kg': v/1000,
-                    'L->mL': v*1000, 'mL->L': v/1000
-                }
-                e.text = str(convs[text])
-            except:
-                e.text = 'Erro'
+botao_multiplicacao = Button(frame_corpo, text = "*", width = 5, height = 2, bg = laranja, fg = branco, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_multiplicacao.place(x = 177, y = 52)
 
 
-class CalculatorApp(App):
-    def build(self):
-        Builder.load_string(KV)
-        return CalcWidget()
+botao_4 = Button(frame_corpo, text = "4", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_4.place(x = 0, y = 104)
+
+botao_5 = Button(frame_corpo, text = "5", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_5.place(x = 59, y = 104)
+
+botao_6 = Button(frame_corpo, text = "6", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_6.place(x = 118, y = 104)
+
+botao_subtracao = Button(frame_corpo, text = "-", width = 5, height = 2, bg = laranja, fg = branco, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_subtracao.place(x = 177, y = 104)
 
 
-if __name__ == '__main__':
-    CalculatorApp().run()
+botao_1 = Button(frame_corpo, text = "1", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_1.place(x = 0, y = 156)
+
+botao_2 = Button(frame_corpo, text = "2", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_2.place(x = 59, y = 156)
+
+botao_3 = Button(frame_corpo, text = "3", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_3.place(x = 118, y = 156)
+
+botao_adicao = Button(frame_corpo, text = "+", width = 5, height = 2, bg = laranja, fg = branco, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_adicao.place(x = 177, y = 156)
+
+
+botao_0 = Button(frame_corpo, text = "0", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_0.place(x = 0, y = 208)
+
+botao_ponto = Button(frame_corpo, text = ".", width = 5, height = 2, bg = cinza, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_ponto.place(x = 59, y = 208)
+
+botao_igual = Button(frame_corpo, text = "=", width = 11, height = 2, bg = laranja, fg = branco, font = ('Ivy 13 bold'), relief = RAISED, overrelief = RIDGE)
+botao_igual.place(x = 118, y = 208)
+
+
+#rodando a janela
+janela.mainloop()   
+
 
 # Parte (back-end) da lógica dos cálculos
 
