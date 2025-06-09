@@ -3,12 +3,12 @@ from tkinter import ttk
 import sqlite3
 
 # cores
-PRETO = "#212121"
-BRANCO = "#FFFFFF"
-AZUL = "#3a576b"
-AZUL_CLARO = "#3498DB"
-CINZA = "#dee0e0"
-LARANJA = "#e39734"
+preto = "#212121"
+branco = "#FFFFFF"
+azul = "#3a576b"
+azul_claro = "#3498DB"
+cinza = "#dee0e0"
+laranja = "#e39734"
 
 # Dados para conversão de unidades
 unidades = {
